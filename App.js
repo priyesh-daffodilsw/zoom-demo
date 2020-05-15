@@ -6,7 +6,24 @@
  * @flow
  */
 
-import React, {useCallback, useEffect} from 'react';
+
+ /* 
+  @ReactMethod
+  public void muteSelf (boolean mute) {
+    try {
+      ZoomSDK zoomSDK = ZoomSDK.getInstance();
+      if(!zoomSDK.isInitialized()) {
+        return;
+      }
+      final InMeetingService inMeetingService = zoomSDK.getInMeetingService();
+      final InMeetingAudioController audioController = inMeetingService.getInMeetingAudioController();
+      audioController.muteMyAudio(mute);
+    } catch (Exception ex) {
+    }
+  }
+ */
+
+import React, {useCallback, useState, useEffect} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -22,6 +39,7 @@ import {Colors} from 'react-native/Libraries/NewAppScreen';
 import Avatar from './Avatar';
 
 const App = () => {
+  const [mute, setMute] = useState(false);
   useEffect(() => {
     Zoom.initialize(
       'C6Psll8UXJrBuARBNWEWURfmRR3wP3RGhqkY',
@@ -50,13 +68,26 @@ const App = () => {
   });
 
   const _joinMeeting = useCallback(async () => {
-    await Zoom.joinMeeting('Sharma Ji', '617265538');
+    await Zoom.joinMeeting('Sharma Ji', '86257382777');
   });
+  const join = () => {
+    setInterval(() => {
+      console.warn('calling mute::', mute);
+      Zoom.muteSelf(mute);
+      setMute(!mute);
+    }, 5000);
+    _joinMeeting();
+  };
   return (
     <>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView style={styles.container}>
-        <View style={{flexDirection: 'row', justifyContent: 'space-between',flexWrap:"wrap"}}>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+          }}>
           <Avatar
             name="Priyesh"
             style={{marginRight: 5, backgroundColor: 'red'}}
@@ -72,7 +103,7 @@ const App = () => {
           <Button title="Create Meeting" onPress={_createMeeting} />
         </View>
         <View style={styles.button}>
-          <Button title="Join Meeting" onPress={_joinMeeting} />
+          <Button title="Join Meeting" onPress={join} />
         </View>
       </SafeAreaView>
     </>
