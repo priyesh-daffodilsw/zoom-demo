@@ -51,7 +51,7 @@ const App = () => {
     try {
       console.warn('Create Meeting: ');
       const result = await Zoom.startMeeting(
-        'loda',
+        'meetingabhi',
         '9999',
         null, // can be 'null'?
         1, // for pro user use 2
@@ -68,7 +68,7 @@ const App = () => {
   });
 
   const _joinMeeting = useCallback(async () => {
-    await Zoom.joinMeeting('Sharma Ji', '86257382777');
+    await Zoom.joinMeeting('Sharma Ji', '86257382777'); // pwd - 879383
   });
   const join = () => {
     setInterval(() => {
