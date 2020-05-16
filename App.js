@@ -6,8 +6,7 @@
  * @flow
  */
 
-
- /* 
+/* 
   @ReactMethod
   public void muteSelf (boolean mute) {
     try {
@@ -34,12 +33,15 @@ import {
   StatusBar,
 } from 'react-native';
 
-import Zoom from 'react-native-zoom-us';
+import Zoom, {VideoView} from 'react-native-zoom-us';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import Avatar from './Avatar';
 
 const App = () => {
   const [mute, setMute] = useState(false);
+  const [activeUser, setActiveUser] = useState();
+  const [myUserId, setMyUser] = useState(0);
+  const [meetingStartedFlag, setMeetingStartedFlag] = useState(false);
   useEffect(() => {
     Zoom.initialize(
       'C6Psll8UXJrBuARBNWEWURfmRR3wP3RGhqkY',
@@ -47,6 +49,7 @@ const App = () => {
       'zoom.us',
     );
   }, []);
+
   const _createMeeting = useCallback(async () => {
     try {
       console.warn('Create Meeting: ');
@@ -61,23 +64,51 @@ const App = () => {
         // NOTE: userId, userType, zoomToken should be taken from user hosting this meeting (not sure why it is required)
         // But it works with putting only zoomAccessToken
       );
-      console.warn('Result : ', result);
     } catch (error) {
       console.warn('error : ', error.message);
     }
-  });
+  }, []);
+
+  const _getInMeetingUserIds = useCallback(async () => {
+    let userIds = await Zoom.getInMeetingUserIds();
+    return userIds;
+  }, []);
 
   const _joinMeeting = useCallback(async () => {
-    await Zoom.joinMeeting('Sharma Ji', '86257382777'); // pwd - 879383
+    try {
+      await Zoom.joinMeetingWithPassword('Sharma Ji', '86257382777', '879383'); // pwd - 879383
+      setMeetingStartedFlag(true);
+      startSlideShow();
+      let myUserId = await Zoom.getMyUserId();
+      setMyUser(myUserId);
+    } catch (e) {
+      console.warn(e.code, e.message);
+    }
   });
-  const join = () => {
-    setInterval(() => {
-      console.warn('calling mute::', mute);
-      Zoom.muteSelf(mute);
-      setMute(!mute);
-    }, 5000);
-    _joinMeeting();
+
+  const startSlideShow = () => {
+    let count = 0;
+    setInterval(async () => {
+      let userIds = await _getInMeetingUserIds();
+      if (Array.isArray(userIds)) {
+        setActiveUser(userIds[count]);
+        count++;
+        count %= userIds.length;
+      }
+    }, 3000);
   };
+  const toggleAudio = () => {
+    Zoom.toggleAudio();
+  };
+
+  const toggleVideo = () => {
+    Zoom.toggleVideo();
+  };
+
+  const toggleCamera = () => {
+    Zoom.toggleCamera();
+  };
+
   return (
     <>
       <StatusBar barStyle="dark-content" />
@@ -99,11 +130,39 @@ const App = () => {
           <Avatar name="Sunny leone" style={{marginRight: 5}} />
           <Avatar name="Harkishan" style={{marginRight: 5}} />
         </View>
+        <View style={{position: 'absolute', top: 10, right: 10}}>
+          {!!myUserId && (
+            <VideoView
+              style={{height: 50, width: 100}}
+              attendeeUserId={myUserId}
+            />
+          )}
+        </View>
+        <View style={styles.container}>
+          {meetingStartedFlag && (
+            <VideoView
+              style={{height: 400, width: 350}}
+              attendeeUserId={activeUser}
+            />
+          )}
+        </View>
         <View style={styles.button}>
           <Button title="Create Meeting" onPress={_createMeeting} />
         </View>
+
         <View style={styles.button}>
-          <Button title="Join Meeting" onPress={join} />
+          <Button title="Toggle Audio" onPress={toggleAudio} />
+        </View>
+
+        <View style={styles.button}>
+          <Button title="Toggle Video" onPress={toggleVideo} />
+        </View>
+        <View style={styles.button}>
+          <Button title="Toggle Camera" onPress={toggleCamera} />
+        </View>
+
+        <View style={styles.button}>
+          <Button title="Join Meeting" onPress={_joinMeeting} />
         </View>
       </SafeAreaView>
     </>
