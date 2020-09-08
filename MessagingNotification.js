@@ -1,4 +1,3 @@
-import React from 'react';
 import {NativeModules} from 'react-native';
 const {MessagingNotification} = NativeModules;
 export class Person {
@@ -6,22 +5,11 @@ export class Person {
     this.key = key;
     this.name = name;
     this.icon = icon;
-    this.intializePersonInstance();
   }
   toMap = () => ({key: this.key, name: this.name, icon: this.icon});
-  intializePersonInstance() {
-    MessagingNotification.createPerson(this.key, this.name, this.icon);
-  }
 }
 
-export class Notification {
-  notify(
-    notificationId: Number,
-    notificationStyle: MessagingStyleNotification,
-  ) {
-    MessagingNotification.notify(notificationId, notificationStyle.id);
-  }
-}
+export const getIntentData = async () => MessagingNotification.getIntentData();
 
 export class MessagingStyleNotification {
   constructor(person: Person) {
@@ -37,7 +25,6 @@ export class MessagingStyleNotification {
   }
 
   addMessage(messageId: Int, text: String, timestamp: Long, person: Person) {
-    console.warn('>>>>>', person);
     this.messageArray = [
       ...this.messageArray,
       {
@@ -76,7 +63,7 @@ export class MessagingStyleNotification {
     return this;
   }
 
-  notify(id = 100) {
+  show(id = 100) {
     console.warn(id, this.toMap());
     MessagingNotification.createAndNotify(id, this.toMap());
   }
@@ -89,5 +76,13 @@ export class MessagingStyleNotification {
       isGroupNotification: this.isGroupNotification,
     };
     return allData;
+  }
+
+  static cancelNotification(id: Number) {
+    MessagingNotification.cancelNotification(id);
+  }
+
+  static cancelAllNotifications(id: Number) {
+    MessagingNotification.cancelAllNotifications();
   }
 }

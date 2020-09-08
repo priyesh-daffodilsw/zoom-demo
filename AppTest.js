@@ -31,6 +31,7 @@ import {
   Text,
   Button,
   StatusBar,
+  AppState,
 } from 'react-native';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
@@ -38,14 +39,34 @@ import Avatar from './Avatar';
 import {
   Person,
   MessagingStyleNotification,
-  Notification,
+  getIntentData,
 } from './MessagingNotification';
-let person = new Person('100', 'Priyesh', 'this is icon');
+let person = new Person(
+  '100',
+  'Priyesh',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/PM_Narendra_Modi.jpg/1200px-PM_Narendra_Modi.jpg',
+);
 let messagingNotification = new MessagingStyleNotification(person);
 let person1 = new Person('200', 'Navin', 'this is icon');
-let notification = new Notification();
 let i = 0;
 const App = () => {
+  const listener = useCallback(event => {
+    if (event && event == 'active') {
+      getIntentData()
+        .then(res => {
+          console.warn(res);
+        })
+        .catch(err => {
+          console.warn(err);
+        });
+    }
+  }, []);
+  useEffect(() => {
+    AppState.addEventListener('change', listener);
+    return () => {
+      AppState.removeEventListener('change', listener);
+    };
+  }, []);
   const _createNotification = () => {
     // console.warn(
     //   'id1: ' +
@@ -63,7 +84,7 @@ const App = () => {
     messagingNotification
       .addMessage(i, 'Hi Single: ' + i, new Date().getTime(), personA)
       .setGroupConversation(false);
-    messagingNotification.notify(100);
+    messagingNotification.show(100);
   };
 
   const _createGroupNotification = () => {
@@ -76,9 +97,9 @@ const App = () => {
     }
     messagingNotification
       .addMessage(i, 'Hi Group: ' + i, new Date().getTime(), personA)
-      .setConversationTitle("Hmara Pyaar Group")
+      .setConversationTitle('Hmara Pyaar Group')
       .setGroupConversation(true);
-    messagingNotification.notify(200);
+    messagingNotification.show(200);
   };
 
   return (

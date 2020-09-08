@@ -2,37 +2,36 @@ package com.zoomdemo;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Build;
+import android.os.Bundle;
 import android.text.TextUtils;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.Person;
-import androidx.core.graphics.drawable.IconCompat;
 
 import com.facebook.react.bridge.ReactContext;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by Priyesh Sharma on 5/9/20.
  */
 public class NotificationUtil {
-    private Map<String, Person> mPersonList = new HashMap<>();
-    private NotificationCompat.MessagingStyle mMessagingStyle;
-    private ReactContext mReactContext;
     private NotificationManagerCompat mNotificationManagerCompat;
     private NotificationCompat.Builder notificationBuilder;
     private String channelId = "messaging_channel";
     private String channelName = "Messaging Notification";
+    private static final int REQUEST_CODE = 269;
+    private ReactContext mReactContext;
 
     public NotificationUtil(ReactContext reactContext) {
+        mNotificationManagerCompat = NotificationManagerCompat.from(reactContext);
         mReactContext = reactContext;
-        mNotificationManagerCompat = NotificationManagerCompat.from(mReactContext);
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
             NotificationManager notificationManager = (NotificationManager) reactContext.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -41,36 +40,21 @@ public class NotificationUtil {
         notificationBuilder = new NotificationCompat.Builder(reactContext, channelId).setSmallIcon(R.mipmap.ic_launcher);
     }
 
-    public Person createPerson(String key, String name, String icon) {
-        if (!mPersonList.containsKey(key)) {
-            Person person = new Person.Builder()
-                    .setName(name)
-                    .setKey(key)
-                    .setIcon(IconCompat.createWithResource(mReactContext, R.mipmap.ic_launcher))
-                    .build();
-            mPersonList.put(key, person);
-            return person;
-        } else {
-            //TODO if name icon changes
-            return mPersonList.get(key);
-        }
-    }
-
-    public Person getPerson(String key) {
-        return mPersonList.get(key);
-    }
-
-    public void initializeMessagingNotificationInstance(Person person) {
-        mMessagingStyle = new NotificationCompat.MessagingStyle(person);
-    }
-
-    public NotificationCompat.MessagingStyle getMessagingStyle(long id) {
-        return mMessagingStyle;
-    }
-
     public void notifyMessaging(int id, NotificationCompat.MessagingStyle messagingStyle) {
         notificationBuilder.setStyle(messagingStyle);
         mNotificationManagerCompat.notify(id, notificationBuilder.build());
+    }
+
+    public void setLargeIcon(Bitmap bitmap) {
+        notificationBuilder.setLargeIcon(bitmap);
+    }
+
+    public void cancelNotification(int id) {
+        mNotificationManagerCompat.cancel(id);
+    }
+
+    public void cancelAllNotifications() {
+        mNotificationManagerCompat.cancelAll();
     }
 
     public NotificationCompat.MessagingStyle createMessagingNotification(Person adminPerson, ArrayList<NotificationCompat.MessagingStyle.Message> messageArrayList, String conversationTitle, boolean isGroupNotification) {
@@ -84,6 +68,13 @@ public class NotificationUtil {
             messagingStyle.addMessage(message);
         }
         notificationBuilder.setStyle(messagingStyle);
+        Intent intent = new Intent(mReactContext, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        Bundle bundle = new Bundle();
+        bundle.putInt("messageId", 4578);
+        intent.putExtra("extraData", bundle);
+        PendingIntent pendingIntent = PendingIntent.getActivity(mReactContext, REQUEST_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        notificationBuilder.setContentIntent(pendingIntent);
         return messagingStyle;
     }
 }
