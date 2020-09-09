@@ -100,6 +100,7 @@ const App = () => {
       .addMessage(i, 'Hi Group: ' + i, new Date().getTime(), personA)
       .setConversationTitle('Hmara Pyaar Group')
       .setGroupConversation(true)
+      .setExtraData({name: 'Priyesh'})
       .setGroupIcon(
         'https://icon2.cleanpng.com/20180330/spw/kisspng-iphone-emoji-apple-ios-11-emojis-5abe1fe31ed9c6.7613688515224094431264.jpg',
       );

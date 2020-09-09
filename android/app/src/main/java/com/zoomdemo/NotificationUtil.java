@@ -70,7 +70,7 @@ public class NotificationUtil {
         mNotificationManagerCompat.cancelAll();
     }
 
-    public NotificationCompat.MessagingStyle createMessagingNotification(Person adminPerson, ArrayList<NotificationCompat.MessagingStyle.Message> messageArrayList, String conversationTitle, boolean isGroupNotification) {
+    public NotificationCompat.MessagingStyle createMessagingNotification(Person adminPerson, ArrayList<NotificationCompat.MessagingStyle.Message> messageArrayList, String conversationTitle, boolean isGroupNotification, Bundle extras) {
         NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(adminPerson)
                 .setGroupConversation(isGroupNotification);
         if (!TextUtils.isEmpty(conversationTitle)) {
@@ -83,9 +83,9 @@ public class NotificationUtil {
         notificationBuilder.setStyle(messagingStyle);
         Intent intent = new Intent(mReactContext, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        Bundle bundle = new Bundle();
-        bundle.putInt("messageId", 4578);
-        intent.putExtra("extraData", bundle);
+        if (extras != null) {
+            intent.putExtra("extraData", extras);
+        }
         PendingIntent pendingIntent = PendingIntent.getActivity(mReactContext, REQUEST_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
         notificationBuilder.setContentIntent(pendingIntent);
         return messagingStyle;

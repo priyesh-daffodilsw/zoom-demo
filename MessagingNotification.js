@@ -29,6 +29,11 @@ export class MessagingStyleNotification {
     return this;
   }
 
+  setExtraData(extraData: Object) {
+    this.extraData = extraData;
+    return this;
+  }
+
   addMessage(messageId: Int, text: String, timestamp: Long, person: Person) {
     this.messageArray = [
       ...this.messageArray,
@@ -79,6 +84,7 @@ export class MessagingStyleNotification {
       messages: this.messageArray,
       conversationTitle: this.conversationTitle,
       isGroupNotification: this.isGroupNotification,
+      extraData: this.extraData,
       groupIcon: this.groupIcon,
     };
     return allData;

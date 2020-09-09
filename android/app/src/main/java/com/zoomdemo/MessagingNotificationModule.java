@@ -3,7 +3,6 @@ package com.zoomdemo;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -99,6 +98,10 @@ public class MessagingNotificationModule extends ReactContextBaseJavaModule {
         //sure
         boolean isGroupNotification = messagingNotification.getBoolean("isGroupNotification");
         String groupIcon = messagingNotification.hasKey("groupIcon") ? messagingNotification.getString("groupIcon") : null;
+        ReadableMap extrasDataMap = messagingNotification.hasKey("extraData")
+                && (messagingNotification.getType("extraData") == ReadableType.Map)
+                ? messagingNotification.getMap("extraData")
+                : null;
         ReadableArray messageArray = messagingNotification.getArray("messages");
         if (messageArray != null && messageArray.size() > 0) {
             ArrayList<NotificationCompat.MessagingStyle.Message> messageArrayList = new ArrayList<>();
@@ -128,7 +131,11 @@ public class MessagingNotificationModule extends ReactContextBaseJavaModule {
                     mNotificationUtil.setLargeIcon(bitmap);
                 }
             }
-            return mNotificationUtil.createMessagingNotification(adminPerson, messageArrayList, conversationTitle, isGroupNotification);
+            Bundle extraData = null;
+            if (extrasDataMap != null) {
+                extraData = Arguments.toBundle(extrasDataMap);
+            }
+            return mNotificationUtil.createMessagingNotification(adminPerson, messageArrayList, conversationTitle, isGroupNotification, extraData);
         } else {
             throw new Exception("message array is null or empty");
         }
