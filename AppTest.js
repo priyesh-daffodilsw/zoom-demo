@@ -91,7 +91,7 @@ const App = () => {
   const _createGroupNotification = () => {
     i++;
     let personA;
-    if (i % 2 == 0) {
+    if (i % 2 == 0 || true) {
       personA = person;
     } else {
       personA = person1;
@@ -101,7 +101,7 @@ const App = () => {
       .setConversationTitle('Hmara Pyaar Group')
       .setGroupConversation(true)
       .setGroupIcon(
-        'https://www.pinclipart.com/picdir/middle/13-139515_download-new-emoji-icons-in-png-ios-10.png',
+        'https://icon2.cleanpng.com/20180330/spw/kisspng-iphone-emoji-apple-ios-11-emojis-5abe1fe31ed9c6.7613688515224094431264.jpg',
       );
     messagingNotificationGroup.show(200);
   };

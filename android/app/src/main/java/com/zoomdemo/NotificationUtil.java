@@ -38,11 +38,18 @@ public class NotificationUtil {
             NotificationManager notificationManager = (NotificationManager) reactContext.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.createNotificationChannel(notificationChannel);
         }
-        notificationBuilder = new NotificationCompat.Builder(reactContext, channelId).setAutoCancel(true).setSmallIcon(R.mipmap.ic_launcher);
+
+        createNotification();
+    }
+
+    private void createNotification() {
+        notificationBuilder = new NotificationCompat
+                .Builder(mReactContext, channelId)
+                .setAutoCancel(true)
+                .setSmallIcon(R.mipmap.ic_launcher);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             notificationBuilder.setCategory(Notification.CATEGORY_MESSAGE);
         }
-
     }
 
     public void notifyMessaging(int id, NotificationCompat.MessagingStyle messagingStyle) {
@@ -51,6 +58,7 @@ public class NotificationUtil {
     }
 
     public void setLargeIcon(Bitmap bitmap) {
+        createNotification();
         notificationBuilder.setLargeIcon(bitmap);
     }
 
