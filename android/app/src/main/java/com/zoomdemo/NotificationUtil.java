@@ -1,5 +1,6 @@
 package com.zoomdemo;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -37,7 +38,11 @@ public class NotificationUtil {
             NotificationManager notificationManager = (NotificationManager) reactContext.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.createNotificationChannel(notificationChannel);
         }
-        notificationBuilder = new NotificationCompat.Builder(reactContext, channelId).setSmallIcon(R.mipmap.ic_launcher);
+        notificationBuilder = new NotificationCompat.Builder(reactContext, channelId).setAutoCancel(true).setSmallIcon(R.mipmap.ic_launcher);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            notificationBuilder.setCategory(Notification.CATEGORY_MESSAGE);
+        }
+
     }
 
     public void notifyMessaging(int id, NotificationCompat.MessagingStyle messagingStyle) {

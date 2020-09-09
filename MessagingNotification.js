@@ -24,6 +24,11 @@ export class MessagingStyleNotification {
     return this;
   }
 
+  setGroupIcon(url: String) {
+    this.groupIcon = url;
+    return this;
+  }
+
   addMessage(messageId: Int, text: String, timestamp: Long, person: Person) {
     this.messageArray = [
       ...this.messageArray,
@@ -74,6 +79,7 @@ export class MessagingStyleNotification {
       messages: this.messageArray,
       conversationTitle: this.conversationTitle,
       isGroupNotification: this.isGroupNotification,
+      groupIcon: this.groupIcon,
     };
     return allData;
   }

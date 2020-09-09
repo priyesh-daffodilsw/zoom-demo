@@ -47,6 +47,7 @@ let person = new Person(
   'https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/PM_Narendra_Modi.jpg/1200px-PM_Narendra_Modi.jpg',
 );
 let messagingNotification = new MessagingStyleNotification(person);
+let messagingNotificationGroup = new MessagingStyleNotification(person);
 let person1 = new Person('200', 'Navin', 'this is icon');
 let i = 0;
 const App = () => {
@@ -95,11 +96,14 @@ const App = () => {
     } else {
       personA = person1;
     }
-    messagingNotification
+    messagingNotificationGroup
       .addMessage(i, 'Hi Group: ' + i, new Date().getTime(), personA)
       .setConversationTitle('Hmara Pyaar Group')
-      .setGroupConversation(true);
-    messagingNotification.show(200);
+      .setGroupConversation(true)
+      .setGroupIcon(
+        'https://www.pinclipart.com/picdir/middle/13-139515_download-new-emoji-icons-in-png-ios-10.png',
+      );
+    messagingNotificationGroup.show(200);
   };
 
   return (

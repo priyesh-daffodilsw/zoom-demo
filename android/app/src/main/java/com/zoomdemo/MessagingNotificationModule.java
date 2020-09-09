@@ -3,6 +3,7 @@ package com.zoomdemo;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -37,6 +38,26 @@ public class MessagingNotificationModule extends ReactContextBaseJavaModule {
         mNotificationUtil = new NotificationUtil(reactContext);
     }
 
+    private Bitmap getBitmap(String url) {
+        FutureTarget<Bitmap> bitmapFutureTask = Glide.with(getReactApplicationContext())
+                .asBitmap()
+                .transform(new RoundedCorners(300))
+                .sizeMultiplier(0.3f)
+                .load(url)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .submit();
+        try {
+            return bitmapFutureTask.get();
+
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     private Person parsePerson(ReadableMap readableMap) throws Exception {
         String key = readableMap.getString("key");
         String name = readableMap.getString("name");
@@ -46,28 +67,14 @@ public class MessagingNotificationModule extends ReactContextBaseJavaModule {
         personBuilder.setName(name);
         if (icon != null) {
             if ((icon.startsWith("http") || icon.startsWith("https"))) {
-                FutureTarget<Bitmap> bitmapFutureTask = Glide.with(getReactApplicationContext())
-                        .asBitmap()
-                        .transform(new RoundedCorners(300))
-                        .sizeMultiplier(0.3f)
-                        .load(icon)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .submit();
-                try {
-                    Bitmap bitmap = bitmapFutureTask.get();
-                    if (bitmap != null) {
-                        personBuilder.setIcon(IconCompat.createWithBitmap(bitmap));
-                    }
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                Bitmap bitmap = getBitmap(icon);
+                if (bitmap != null) {
+                    personBuilder.setIcon(IconCompat.createWithBitmap(bitmap));
                 }
             } else if (icon.startsWith("content://")) {
                 personBuilder.setIcon(IconCompat.createWithContentUri(icon));
             }
         }
-
         return personBuilder.build();
     }
 
@@ -91,6 +98,7 @@ public class MessagingNotificationModule extends ReactContextBaseJavaModule {
     private NotificationCompat.MessagingStyle parseMessagingNotification(ReadableMap messagingNotification) throws Exception {
         //sure
         boolean isGroupNotification = messagingNotification.getBoolean("isGroupNotification");
+        String groupIcon = messagingNotification.hasKey("groupIcon") ? messagingNotification.getString("groupIcon") : null;
         ReadableArray messageArray = messagingNotification.getArray("messages");
         if (messageArray != null && messageArray.size() > 0) {
             ArrayList<NotificationCompat.MessagingStyle.Message> messageArrayList = new ArrayList<>();
@@ -113,6 +121,13 @@ public class MessagingNotificationModule extends ReactContextBaseJavaModule {
                 throw new Exception("Person object passed in Messaging style constructor is null or invalid");
             }
             Person adminPerson = parsePerson(admin);
+            if (isGroupNotification && groupIcon != null) {
+                Bitmap bitmap = null;
+                if (groupIcon.startsWith("http") || groupIcon.startsWith("https")) {
+                    bitmap = getBitmap(groupIcon);
+                    mNotificationUtil.setLargeIcon(bitmap);
+                }
+            }
             return mNotificationUtil.createMessagingNotification(adminPerson, messageArrayList, conversationTitle, isGroupNotification);
         } else {
             throw new Exception("message array is null or empty");
