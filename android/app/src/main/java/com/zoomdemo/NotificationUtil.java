@@ -29,6 +29,7 @@ public class NotificationUtil {
     private String channelName = "Messaging Notification";
     private static final int REQUEST_CODE = 269;
     private ReactContext mReactContext;
+    private Bundle mExtras;
 
     public NotificationUtil(ReactContext reactContext) {
         mNotificationManagerCompat = NotificationManagerCompat.from(reactContext);
@@ -54,6 +55,17 @@ public class NotificationUtil {
 
     public void notifyMessaging(int id, NotificationCompat.MessagingStyle messagingStyle) {
         notificationBuilder.setStyle(messagingStyle);
+        Intent intent = new Intent(mReactContext, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        if (mExtras != null) {
+            intent.putExtra("extraData", mExtras);
+        }
+        int requestCode = REQUEST_CODE;
+        if (id >= 0) {
+            requestCode = id;
+        }
+        PendingIntent pendingIntent = PendingIntent.getActivity(mReactContext, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        notificationBuilder.setContentIntent(pendingIntent);
         mNotificationManagerCompat.notify(id, notificationBuilder.build());
     }
 
@@ -81,13 +93,7 @@ public class NotificationUtil {
             messagingStyle.addMessage(message);
         }
         notificationBuilder.setStyle(messagingStyle);
-        Intent intent = new Intent(mReactContext, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        if (extras != null) {
-            intent.putExtra("extraData", extras);
-        }
-        PendingIntent pendingIntent = PendingIntent.getActivity(mReactContext, REQUEST_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-        notificationBuilder.setContentIntent(pendingIntent);
+        this.mExtras = extras;
         return messagingStyle;
     }
 }
