@@ -75,34 +75,17 @@ const App = () => {
     //     ' id2: ' +
     //     messagingNotificationGroup.id,
     // );
-    // i++;
-    // let personA;
-    // if (i % 2 == 0) {
-    //   personA = person;
-    // } else {
-    //   personA = person1;
-    // }
-    // messagingNotification
-    //   .addMessage(i, 'Hi Single: ' + i, new Date().getTime(), personA)
-    //   .setGroupConversation(false);
-    // messagingNotification.show(100)
-
     i++;
     let personA;
-    if (i % 2 == 0 || true) {
+    if (i % 2 == 0) {
       personA = person;
     } else {
       personA = person1;
     }
-    messagingNotificationGroup
-      .addMessage(i, 'Hi Group: ' + i, new Date().getTime(), personA)
-      .setConversationTitle('Hmara Pyaar Group')
-      .setGroupConversation(true)
-      .setExtraData({name: 'Sharma'})
-      .setGroupIcon(
-        'https://icon2.cleanpng.com/20180330/spw/kisspng-iphone-emoji-apple-ios-11-emojis-5abe1fe31ed9c6.7613688515224094431264.jpg',
-      );
-    messagingNotificationGroup.show(100);
+    messagingNotification
+      .addMessage(i, 'Hi Single: ' + i, new Date().getTime(), personA)
+      .setGroupConversation(false);
+    messagingNotification.show(100)
   };
 
   const _createGroupNotification = (notid = 200) => {

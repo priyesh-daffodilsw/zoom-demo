@@ -1,7 +1,13 @@
 package com.zoomdemo;
 
+import android.app.Notification;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.graphics.Rect;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -37,6 +43,25 @@ public class MessagingNotificationModule extends ReactContextBaseJavaModule {
         mNotificationUtil = new NotificationUtil(reactContext);
     }
 
+    public Bitmap getCroppedBitmap(Bitmap bitmap) {
+        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
+                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
+
+        final int color = 0xff424242;
+        final Paint paint = new Paint();
+        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        paint.setColor(color);
+        canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2,
+                bitmap.getWidth() / 2, paint);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmap, rect, rect, paint);
+        return output;
+    }
+
     private Bitmap getBitmap(String url) {
         FutureTarget<Bitmap> bitmapFutureTask = Glide.with(getReactApplicationContext())
                 .asBitmap()
@@ -46,8 +71,10 @@ public class MessagingNotificationModule extends ReactContextBaseJavaModule {
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .submit();
         try {
-            return bitmapFutureTask.get();
-
+            Bitmap bitmap = bitmapFutureTask.get();
+            if (bitmap != null) {
+                return getCroppedBitmap(bitmap);
+            }
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -57,7 +84,7 @@ public class MessagingNotificationModule extends ReactContextBaseJavaModule {
         return null;
     }
 
-    private Person parsePerson(ReadableMap readableMap) throws Exception {
+    private Person parsePerson(ReadableMap readableMap) {
         String key = readableMap.getString("key");
         String name = readableMap.getString("name");
         String icon = readableMap.hasKey("icon") ? readableMap.getString("icon") : null;
@@ -125,7 +152,7 @@ public class MessagingNotificationModule extends ReactContextBaseJavaModule {
             }
             Person adminPerson = parsePerson(admin);
             if (isGroupNotification && groupIcon != null) {
-                Bitmap bitmap = null;
+                Bitmap bitmap;
                 if (groupIcon.startsWith("http") || groupIcon.startsWith("https")) {
                     bitmap = getBitmap(groupIcon);
                     mNotificationUtil.setLargeIcon(bitmap);
