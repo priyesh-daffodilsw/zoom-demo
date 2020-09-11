@@ -25,11 +25,16 @@ import java.util.ArrayList;
 public class NotificationUtil {
     private NotificationManagerCompat mNotificationManagerCompat;
     private NotificationCompat.Builder notificationBuilder;
+    private NotificationCompat.Builder summaryNotification;
     private String channelId = "messaging_channel";
     private String channelName = "Messaging Notification";
     private static final int REQUEST_CODE = 269;
     private ReactContext mReactContext;
     private Bundle mExtras;
+    public static final String GROUP_NAME = "messaging_group";
+    private static final int SUMMARY_NOTIFICATION = 106;
+    private String mSummaryText;
+
 
     public NotificationUtil(ReactContext reactContext) {
         mNotificationManagerCompat = NotificationManagerCompat.from(reactContext);
@@ -43,10 +48,27 @@ public class NotificationUtil {
         createNotification();
     }
 
+    private void prepareSummaryNotification() {
+        summaryNotification = new NotificationCompat
+                .Builder(mReactContext, channelId)
+                .setAutoCancel(true)
+                .setGroup(GROUP_NAME)
+                .setGroupSummary(true)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setStyle(new NotificationCompat.InboxStyle()
+                        .setSummaryText(mSummaryText)
+                        .setBigContentTitle(mSummaryText));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            notificationBuilder.setCategory(Notification.CATEGORY_MESSAGE);
+        }
+    }
+
     private void createNotification() {
         notificationBuilder = new NotificationCompat
                 .Builder(mReactContext, channelId)
                 .setAutoCancel(true)
+                .setGroup(GROUP_NAME)
                 .setSmallIcon(R.mipmap.ic_launcher);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             notificationBuilder.setCategory(Notification.CATEGORY_MESSAGE);
@@ -67,6 +89,12 @@ public class NotificationUtil {
         PendingIntent pendingIntent = PendingIntent.getActivity(mReactContext, requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         notificationBuilder.setContentIntent(pendingIntent);
         mNotificationManagerCompat.notify(id, notificationBuilder.build());
+        if (mSummaryText != null) {
+            prepareSummaryNotification();
+            mNotificationManagerCompat.notify(SUMMARY_NOTIFICATION, summaryNotification.build());
+        } else {
+            mNotificationManagerCompat.cancel(SUMMARY_NOTIFICATION);
+        }
     }
 
     public void setLargeIcon(Bitmap bitmap) {
@@ -82,7 +110,7 @@ public class NotificationUtil {
         mNotificationManagerCompat.cancelAll();
     }
 
-    public NotificationCompat.MessagingStyle createMessagingNotification(Person adminPerson, ArrayList<NotificationCompat.MessagingStyle.Message> messageArrayList, String conversationTitle, boolean isGroupNotification, Bundle extras) {
+    public NotificationCompat.MessagingStyle createMessagingNotification(Person adminPerson, ArrayList<NotificationCompat.MessagingStyle.Message> messageArrayList, String conversationTitle, boolean isGroupNotification, Bundle extras, String summaryText) {
         NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(adminPerson)
                 .setGroupConversation(isGroupNotification);
         if (!TextUtils.isEmpty(conversationTitle)) {
@@ -94,6 +122,7 @@ public class NotificationUtil {
         }
         notificationBuilder.setStyle(messagingStyle);
         this.mExtras = extras;
+        mSummaryText = summaryText;
         return messagingStyle;
     }
 }

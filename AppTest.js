@@ -84,8 +84,9 @@ const App = () => {
     }
     messagingNotification
       .addMessage(i, 'Hi Single: ' + i, new Date().getTime(), personA)
+      .setSummary(`${i} unread messages`)
       .setGroupConversation(false);
-    messagingNotification.show(100)
+    messagingNotification.show(100);
   };
 
   const _createGroupNotification = (notid = 200) => {
@@ -100,6 +101,7 @@ const App = () => {
       .addMessage(i, 'Hi Group: ' + i, new Date().getTime(), personA)
       .setConversationTitle('Hmara Pyaar Group')
       .setGroupConversation(true)
+      .setSummary(`${i} unread messages`)
       .setExtraData({name: 'Priyesh'})
       .setGroupIcon(
         'https://icon2.cleanpng.com/20180330/spw/kisspng-iphone-emoji-apple-ios-11-emojis-5abe1fe31ed9c6.7613688515224094431264.jpg',

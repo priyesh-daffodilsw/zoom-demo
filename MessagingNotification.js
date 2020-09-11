@@ -34,6 +34,11 @@ export class MessagingStyleNotification {
     return this;
   }
 
+  setSummary(text: String) {
+    this.summaryText = text;
+    return this;
+  }
+
   addMessage(messageId: Int, text: String, timestamp: Long, person: Person) {
     this.messageArray = [
       ...this.messageArray,
@@ -86,6 +91,7 @@ export class MessagingStyleNotification {
       isGroupNotification: this.isGroupNotification,
       extraData: this.extraData,
       groupIcon: this.groupIcon,
+      summaryText: this.summaryText,
     };
     return allData;
   }
